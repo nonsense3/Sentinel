@@ -15,15 +15,35 @@
 </p>
 
 <p align="center">
-  <img alt="Amazon S3" src="https://img.shields.io/badge/Amazon%20S3-020303?style=flat-square&logo=amazons3&logoColor=38ff8e" />
-  <img alt="AWS Lambda" src="https://img.shields.io/badge/AWS%20Lambda-020303?style=flat-square&logo=awslambda&logoColor=38ff8e" />
-  <img alt="Amazon DynamoDB" src="https://img.shields.io/badge/DynamoDB-020303?style=flat-square&logo=amazondynamodb&logoColor=38ff8e" />
-  <img alt="Amazon API Gateway" src="https://img.shields.io/badge/API%20Gateway-020303?style=flat-square&logo=amazonapigateway&logoColor=38ff8e" />
-  <img alt="Amazon SQS" src="https://img.shields.io/badge/Amazon%20SQS-020303?style=flat-square&logo=amazonsqs&logoColor=38ff8e" />
-  <img alt="Terraform" src="https://img.shields.io/badge/Terraform-020303?style=flat-square&logo=terraform&logoColor=38ff8e" />
-  <img alt="Docker" src="https://img.shields.io/badge/Docker%20Compose-020303?style=flat-square&logo=docker&logoColor=38ff8e" />
-  <img alt="Python" src="https://img.shields.io/badge/Python%203.11-020303?style=flat-square&logo=python&logoColor=38ff8e" />
+  <img src="docs/icons/aws-logo.svg" alt="AWS" width="72" height="72" />
+  &nbsp;&nbsp;
+  <img src="docs/icons/aws-cloud.svg" alt="AWS Cloud" width="72" height="72" />
+  &nbsp;&nbsp;
+  <img src="docs/icons/localstack.png" alt="LocalStack" width="72" height="72" />
+  <br/>
+  <sub><b>AWS cloud services, running on your laptop through LocalStack</b></sub>
 </p>
+
+## Built with
+
+<table align="center">
+  <tr>
+    <td align="center" width="110"><img src="docs/icons/aws-logo.svg" alt="AWS" width="52" height="52" /><br/><b>AWS</b><br/><sub>Cloud platform</sub></td>
+    <td align="center" width="110"><img src="docs/icons/aws-cloud.svg" alt="AWS Cloud" width="52" height="52" /><br/><b>AWS Cloud</b><br/><sub>Emulated locally</sub></td>
+    <td align="center" width="110"><img src="docs/icons/s3.svg" alt="Amazon S3" width="52" height="52" /><br/><b>Amazon S3</b><br/><sub>3 buckets</sub></td>
+    <td align="center" width="110"><img src="docs/icons/lambda.svg" alt="AWS Lambda" width="52" height="52" /><br/><b>AWS Lambda</b><br/><sub>4 functions</sub></td>
+    <td align="center" width="110"><img src="docs/icons/dynamodb.svg" alt="Amazon DynamoDB" width="52" height="52" /><br/><b>DynamoDB</b><br/><sub>2 tables</sub></td>
+    <td align="center" width="110"><img src="docs/icons/api-gateway.svg" alt="Amazon API Gateway" width="52" height="52" /><br/><b>API Gateway</b><br/><sub>REST API</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="110"><img src="docs/icons/sqs.svg" alt="Amazon SQS" width="52" height="52" /><br/><b>Amazon SQS</b><br/><sub>3 queues + DLQ</sub></td>
+    <td align="center" width="110"><img src="docs/icons/localstack.png" alt="LocalStack" width="52" height="52" /><br/><b>LocalStack</b><br/><sub>Local AWS</sub></td>
+    <td align="center" width="110"><img src="docs/icons/terraform.svg" alt="Terraform" width="52" height="52" /><br/><b>Terraform</b><br/><sub>IaC</sub></td>
+    <td align="center" width="110"><img src="docs/icons/docker.svg" alt="Docker" width="52" height="52" /><br/><b>Docker</b><br/><sub>Compose</sub></td>
+    <td align="center" width="110"><img src="docs/icons/python.svg" alt="Python" width="52" height="52" /><br/><b>Python 3.11</b><br/><sub>Lambda runtime</sub></td>
+    <td align="center" width="110"></td>
+  </tr>
+</table>
 
 ---
 
@@ -33,6 +53,7 @@ Docker container. No AWS account and no credit card are needed.
 
 ## Contents
 
+- [Built with](#built-with)
 - [Screenshots](#screenshots)
 - [What works](#what-works)
 - [Architecture](#architecture)
@@ -458,4 +479,11 @@ Never put real AWS keys in `.env`. LocalStack ignores credential values, and `.e
 
 <p align="center">
   <sub>Out of scope: real malware samples, authentication, production hardening.</sub>
+</p>
+
+<p align="center">
+  <sub>AWS service icons are the official AWS Architecture Icons, © Amazon Web Services, Inc., used unmodified under the
+  <a href="https://aws.amazon.com/architecture/icons/">AWS icon terms</a>. Terraform, Docker, and Python icons are from
+  <a href="https://devicon.dev">Devicon</a> (MIT). The LocalStack logo belongs to LocalStack. All logos are trademarks of their owners.
+  Sentinel is not affiliated with or endorsed by AWS.</sub>
 </p>
