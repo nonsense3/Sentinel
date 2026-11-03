@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sentinel — Scan Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <span class="marker" style="top:40px"></span>
+
+    <header>
+      <h1>
+        SENTINEL
+        <span class="sub tagline">Every upload is guilty until proven clean</span>
+      </h1>
+      <div class="signal" aria-hidden="true"></div>
+    </header>
+
+    <p class="section-label">01 — Submit for scan</p>
+    <form id="upload-form" class="panel">
+      <div class="field">
+        <label for="file">Select a file</label>
+        <input type="file" id="file" name="file" required />
+      </div>
+      <button type="submit" class="btn btn-primary" id="submit-btn">Scan file</button>
+    </form>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:24px">
+      <p class="section-label">02 — Verdict records</p>
+      <button type="button" class="btn" id="refresh-btn">Refresh</button>
+    </div>
+
+    <span class="marker" style="bottom:120px" aria-hidden="true"></span>
+
+    <section class="records" id="records" aria-live="polite">
+      <p class="empty">No files scanned yet. Submit one above.</p>
+    </section>
+
+    <footer>
+      <span>SENTINEL // LOCALSTACK</span>
+      <span>S3 · LAMBDA · SQS · DYNAMODB · API GATEWAY</span>
+      <span>CLEAN · SUSPICIOUS · MALICIOUS</span>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

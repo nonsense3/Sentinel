@@ -1,0 +1,4 @@
+# Dev/test dependencies. The Lambda runtime provides boto3, so it is not
+# pinned for deployment; it's listed here for local scripts and tests.
+pytest>=8.0
+boto3>=1.34

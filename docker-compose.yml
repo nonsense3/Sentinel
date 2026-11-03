@@ -1,0 +1,28 @@
+services:
+  localstack:
+    # Pin a known-good tag; override with LOCALSTACK_IMAGE if needed.
+    image: ${LOCALSTACK_IMAGE:-localstack/localstack:3.8}
+    container_name: sentinel-localstack
+    ports:
+      - "4566:4566"            # edge / gateway (all services)
+      - "4510-4559:4510-4559"  # external service ports (Lambda, etc.)
+    environment:
+      # Services Sentinel uses. Keeping this tight speeds startup.
+      - SERVICES=s3,sqs,lambda,dynamodb,apigateway,iam,sts,logs
+      - DEBUG=${DEBUG:-0}
+      # Auth token enables the LocalStack licensed features. Optional for the
+      # community image; required if LOCALSTACK_IMAGE points at the Pro image.
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN:-}
+      # Lambda runs as a sibling container via the mounted docker socket.
+      - LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT=90
+      - LAMBDA_DOCKER_FLAGS=-e AWS_ENDPOINT_URL=http://localstack:4566
+    volumes:
+      - "./.localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    healthcheck:
+      # "s3" appears available once the gateway is serving.
+      test: ["CMD-SHELL", "curl -sf http://localhost:4566/_localstack/health | grep -q '\"s3\": \"available\"' || curl -sf http://localhost:4566/_localstack/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s

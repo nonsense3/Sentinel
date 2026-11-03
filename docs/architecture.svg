@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <rect width="900" height="520" fill="#020303"/>
+  <!-- signal rail -->
+  <rect x="24" y="24" width="3" height="472" fill="#38ff8e"/>
+  <rect x="21" y="60" width="9" height="9" fill="#38ff8e"/>
+  <rect x="21" y="250" width="9" height="9" fill="#38ff8e"/>
+  <rect x="21" y="440" width="9" height="9" fill="#38ff8e"/>
+
+  <text x="60" y="48" fill="#f8fffa" font-size="20" letter-spacing="2" font-weight="600">SENTINEL — PIPELINE</text>
+  <text x="60" y="68" fill="#c2cbc5" font-size="11">S3 · LAMBDA · SQS · DYNAMODB · API GATEWAY  (LOCALSTACK)</text>
+
+  <!-- helpers -->
+  <!-- box style: plate fill, line stroke -->
+  <g stroke="#304c3b" stroke-width="1">
+    <!-- client -->
+    <rect x="60" y="100" width="150" height="46" fill="#090e0b"/>
+    <!-- api gw -->
+    <rect x="250" y="100" width="150" height="46" fill="#090e0b"/>
+    <!-- upload lambda -->
+    <rect x="440" y="100" width="160" height="46" fill="#090e0b"/>
+    <!-- incoming bucket -->
+    <rect x="640" y="100" width="190" height="46" fill="#090e0b"/>
+
+    <!-- scan queue -->
+    <rect x="640" y="190" width="190" height="46" fill="#090e0b"/>
+    <!-- dlq -->
+    <rect x="640" y="250" width="190" height="40" fill="#090e0b" stroke="#ff65d8"/>
+
+    <!-- scanner -->
+    <rect x="440" y="300" width="160" height="60" fill="#090e0b" stroke="#38ff8e"/>
+
+    <!-- clean -->
+    <rect x="60" y="300" width="150" height="46" fill="#090e0b"/>
+    <!-- quarantine -->
+    <rect x="60" y="360" width="150" height="46" fill="#090e0b"/>
+    <!-- verdicts -->
+    <rect x="250" y="300" width="150" height="46" fill="#090e0b"/>
+
+    <!-- alerts queue -->
+    <rect x="440" y="400" width="160" height="40" fill="#090e0b"/>
+    <!-- alerts lambda -->
+    <rect x="640" y="400" width="190" height="40" fill="#090e0b"/>
+
+    <!-- status lambda -->
+    <rect x="250" y="440" width="150" height="46" fill="#090e0b"/>
+  </g>
+
+  <!-- labels -->
+  <g fill="#f8fffa" font-size="12">
+    <text x="135" y="128" text-anchor="middle">CLIENT</text>
+    <text x="325" y="128" text-anchor="middle">API GATEWAY</text>
+    <text x="520" y="128" text-anchor="middle">λ upload</text>
+    <text x="735" y="122" text-anchor="middle">S3 incoming</text>
+    <text x="735" y="218" text-anchor="middle">SQS scan-queue</text>
+    <text x="735" y="275" text-anchor="middle" fill="#ff65d8">SQS scan-dlq</text>
+    <text x="520" y="326" text-anchor="middle" fill="#38ff8e">λ scanner</text>
+    <text x="520" y="344" text-anchor="middle" fill="#c2cbc5" font-size="10">hash · magic · patterns · entropy · zip</text>
+    <text x="135" y="327" text-anchor="middle">S3 clean</text>
+    <text x="135" y="387" text-anchor="middle">S3 quarantine</text>
+    <text x="325" y="327" text-anchor="middle">DynamoDB verdicts</text>
+    <text x="520" y="424" text-anchor="middle">SQS alerts</text>
+    <text x="735" y="424" text-anchor="middle">λ alerts</text>
+    <text x="735" y="438" text-anchor="middle" fill="#c2cbc5" font-size="10">logs SECURITY ALERT</text>
+    <text x="325" y="467" text-anchor="middle">λ status</text>
+  </g>
+
+  <!-- arrows -->
+  <g stroke="#659579" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+    <path d="M210 123 H250"/>
+    <path d="M400 123 H440"/>
+    <path d="M600 123 H640"/>
+    <path d="M735 146 V190"/>            <!-- incoming -> scan queue (S3 event) -->
+    <path d="M640 213 H600"/>            <!-- scan queue -> scanner -->
+    <path d="M735 236 V250"/>            <!-- scan queue -> dlq -->
+    <path d="M440 322 H210"/>            <!-- scanner -> clean -->
+    <path d="M440 345 H210 V360"/>       <!-- scanner -> quarantine -->
+    <path d="M440 330 H400"/>            <!-- scanner -> verdicts -->
+    <path d="M520 360 V400"/>            <!-- scanner -> alerts queue -->
+    <path d="M600 420 H640"/>            <!-- alerts queue -> alerts lambda -->
+    <path d="M250 463 H135 V346"/>       <!-- status reads verdicts (approx) -->
+  </g>
+
+  <text x="60" y="508" fill="#c2cbc5" font-size="10">GET /files/{id} → λ status → DynamoDB verdicts   ·   malicious → alerts   ·   3 failures → DLQ</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0 0 L6 3 L0 6 Z" fill="#659579"/>
+    </marker>
+  </defs>
+</svg>

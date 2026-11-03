@@ -1,0 +1,30 @@
+# Secrets / local env
+.env
+
+# LocalStack state
+.localstack/
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Lambda build artifacts
+*.zip
+build/
+
+# Generated test samples
+samples/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
