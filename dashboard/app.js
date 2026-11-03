@@ -7,6 +7,7 @@ const submitBtn = document.getElementById("submit-btn");
 const statusEl = document.getElementById("status");
 const recordsEl = document.getElementById("records");
 const refreshBtn = document.getElementById("refresh-btn");
+const clearBtn = document.getElementById("clear-btn");
 
 function setStatus(msg, kind) {
   statusEl.textContent = msg;
@@ -106,27 +107,62 @@ async function refresh() {
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const file = fileInput.files[0];
-  if (!file) return;
+  const files = Array.from(fileInput.files);
+  if (files.length === 0) return;
   submitBtn.disabled = true;
-  setStatus(`Uploading ${file.name}…`);
+
+  const pending = [];
   try {
-    const { file_id } = await uploadFile(file);
-    setStatus(`Queued ${file.name}. Scanning…`);
-    await refresh();
-    const rec = await waitForScanned(file_id);
-    if (rec) {
-      setStatus(`${file.name}: ${rec.verdict.toUpperCase()} (score ${rec.risk_score})`,
-        rec.verdict === "clean" ? "ok" : "err");
-    } else {
-      setStatus(`${file.name}: still scanning (check Refresh). May have dead-lettered.`, "err");
+    // Upload all selected files first, then wait for their verdicts.
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setStatus(`Uploading ${i + 1}/${files.length}: ${file.name}…`);
+      try {
+        const { file_id } = await uploadFile(file);
+        pending.push({ name: file.name, id: file_id });
+      } catch (err) {
+        setStatus(`Failed to upload ${file.name}: ${err.message}`, "err");
+      }
     }
     await refresh();
+
+    // Collect verdicts.
+    let clean = 0, flagged = 0, stuck = 0;
+    for (let i = 0; i < pending.length; i++) {
+      const p = pending[i];
+      setStatus(`Scanning ${i + 1}/${pending.length}: ${p.name}…`);
+      const rec = await waitForScanned(p.id);
+      if (!rec) { stuck++; }
+      else if (rec.verdict === "clean") { clean++; }
+      else { flagged++; }
+      await refresh();
+    }
+
+    const bits = [`${pending.length} file(s)`, `${clean} clean`, `${flagged} flagged`];
+    if (stuck) bits.push(`${stuck} still scanning / dead-lettered`);
+    setStatus(bits.join(" · "), flagged > 0 || stuck > 0 ? "err" : "ok");
     form.reset();
-  } catch (err) {
-    setStatus(err.message, "err");
   } finally {
     submitBtn.disabled = false;
+  }
+});
+
+clearBtn.addEventListener("click", async () => {
+  if (!window.confirm("Clear all verdict records and stored files? This cannot be undone.")) {
+    return;
+  }
+  clearBtn.disabled = true;
+  setStatus("Clearing records…");
+  try {
+    const res = await fetch("/api/clear", { method: "POST" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `clear failed (${res.status})`);
+    setStatus(`Cleared ${data.cleared} record(s).`, "ok");
+    await refresh();
+  } catch (e) {
+    setStatus("Could not clear: " + e.message, "err");
+  } finally {
+    clearBtn.disabled = false;
   }
 });
 

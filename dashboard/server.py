@@ -91,6 +91,40 @@ def list_files():
     return rows
 
 
+def clear_files():
+    """Delete all verdict rows and remove the stored objects from every bucket.
+
+    This is a demo convenience ("Clear records" in the dashboard). It empties the
+    verdicts table and the clean/quarantine/incoming buckets so the console starts
+    fresh. The known-hashes cache is left intact so idempotency still demonstrates.
+    """
+    ddb = aws.client("dynamodb")
+    s3 = aws.client("s3")
+
+    rows = list_files()
+    deleted = 0
+    for row in rows:
+        fid = row.get("file_id")
+        if fid:
+            ddb.delete_item(
+                TableName=config.VERDICTS_TABLE,
+                Key={"file_id": {"S": fid}},
+            )
+            deleted += 1
+
+    # Empty the object buckets too, so nothing lingers in storage.
+    for bucket in (config.INCOMING_BUCKET, config.CLEAN_BUCKET, config.QUARANTINE_BUCKET):
+        try:
+            listing = s3.list_objects_v2(Bucket=bucket)
+        except Exception:  # noqa: BLE001
+            continue
+        objs = [{"Key": o["Key"]} for o in listing.get("Contents", [])]
+        if objs:
+            s3.delete_objects(Bucket=bucket, Delete={"Objects": objs})
+
+    return deleted
+
+
 def forward(method, path, body=None):
     """Forward a request to the deployed API Gateway and return (status, bytes)."""
     global API_BASE
@@ -151,6 +185,12 @@ class Handler(BaseHTTPRequestHandler):
             body = self.rfile.read(length)
             status, raw = forward("POST", "/upload", body=body)
             return self._send(status, raw)
+        if self.path == "/api/clear":
+            try:
+                removed = clear_files()
+                return self._send(200, {"cleared": removed})
+            except Exception as exc:  # noqa: BLE001
+                return self._send(500, {"error": str(exc)})
         self._send(404, {"error": "not found"})
 
     def log_message(self, *_args):
