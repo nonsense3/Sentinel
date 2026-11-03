@@ -42,10 +42,7 @@ function Invoke-Test { python -m pytest -q }
 
 function Invoke-Logs { docker compose logs -f localstack }
 
-function Invoke-Alerts {
-    $lines = docker compose logs localstack | Select-String "SECURITY ALERT"
-    if ($lines) { $lines } else { "no alerts yet" }
-}
+function Invoke-Alerts { python (Join-Path $root "scripts\alerts.py") }
 
 function Invoke-Dlq {
     Push-Location $tf

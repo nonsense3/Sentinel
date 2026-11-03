@@ -21,7 +21,7 @@ logs: ## Tail LocalStack logs
 	docker compose logs -f localstack
 
 alerts: ## Show SECURITY ALERT lines from the alerts Lambda
-	docker compose logs localstack | grep "SECURITY ALERT" || echo "no alerts yet"
+	python scripts/alerts.py
 
 dlq: ## Show approximate DLQ depth
 	awslocal sqs get-queue-attributes \
