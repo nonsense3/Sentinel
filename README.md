@@ -43,7 +43,7 @@
     <td align="center" width="110"><img src="docs/icons/sqs.svg" alt="Amazon SQS" width="52" height="52" /><br/><b>Amazon SQS</b><br/><sub>3 queues + DLQ</sub></td>
     <td align="center" width="110"><img src="docs/icons/localstack.png" alt="LocalStack" width="52" height="52" /><br/><b>LocalStack</b><br/><sub>Local AWS</sub></td>
     <td align="center" width="110"><img src="docs/icons/terraform.svg" alt="Terraform" width="52" height="52" /><br/><b>Terraform</b><br/><sub>IaC</sub></td>
-    <td align="center" width="110"><img src="docs/icons/docker.svg" alt="Docker" width="52" height="52" /><br/><b>Docker</b><br/><sub>Compose</sub></td>
+    <td align="center" width="110"><img src="docs/icons/docker-mark-ocean-blue.svg" alt="Docker" width="52" height="52" /><br/><b>Docker</b><br/><sub>Compose</sub></td>
     <td align="center" width="110"><img src="docs/icons/python.svg" alt="Python" width="52" height="52" /><br/><b>Python 3.11</b><br/><sub>Lambda runtime</sub></td>
     <td align="center" width="110"></td>
   </tr>
@@ -485,7 +485,8 @@ Never put real AWS keys in `.env`. LocalStack ignores credential values, and `.e
 
 <p align="center">
   <sub>AWS service icons are the official AWS Architecture Icons, © Amazon Web Services, Inc., used unmodified under the
-  <a href="https://aws.amazon.com/architecture/icons/">AWS icon terms</a>. Terraform, Docker, and Python icons are from
-  <a href="https://devicon.dev">Devicon</a> (MIT). The LocalStack logo belongs to LocalStack. All logos are trademarks of their owners.
+  <a href="https://aws.amazon.com/architecture/icons/">AWS icon terms</a>. Terraform and Python icons are from
+  <a href="https://devicon.dev">Devicon</a> (MIT). The Docker logo is the official Docker mark from
+  <a href="https://www.docker.com/company/newsroom/media-resources/">Docker, Inc.</a> The LocalStack logo belongs to LocalStack. All logos are trademarks of their owners.
   Sentinel is not affiliated with or endorsed by AWS.</sub>
 </p>
