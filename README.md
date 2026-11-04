@@ -45,9 +45,8 @@
 
 ---
 
-Built for **Track 2: "Cloud in a Box" Local Serverless Hack (LocalStack)**. The whole AWS backend
-(S3, Lambda, DynamoDB, API Gateway, SQS) is defined in Terraform and runs inside a LocalStack
-Docker container. No AWS account and no credit card are needed.
+The whole AWS backend (S3, Lambda, DynamoDB, API Gateway, SQS) is defined in Terraform and runs
+inside a LocalStack Docker container. No AWS account and no credit card are needed.
 
 ## Contents
 
