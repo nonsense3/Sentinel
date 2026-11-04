@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sentinel — Local serverless file scanning on LocalStack</title>
+  <meta name="description" content="Sentinel scans every upload before it is shared. An event-driven pipeline on S3, Lambda, SQS, DynamoDB and API Gateway, defined in Terraform and running locally on LocalStack." />
+  <meta name="theme-color" content="#020303" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Sentinel — every upload is guilty until proven clean" />
+  <meta property="og:description" content="A serverless file-scanning pipeline that runs entirely on your laptop with LocalStack, Terraform and Docker." />
+  <meta property="og:url" content="https://nonsense3.github.io/Sentinel/" />
+  <meta property="og:image" content="https://nonsense3.github.io/Sentinel/screenshots/dashboard.png" />
+  <link rel="preload" href="assets/fonts/ibm-plex-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="site.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="page">
+<div class="shell">
+
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Sentinel home">
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="27" height="27" fill="#090e0b" stroke="#304c3b" />
+        <path d="M7 7 H21 V18 L18 21 H7 Z" fill="none" stroke="#38ff8e" stroke-width="1.5" />
+        <rect x="3" y="3" width="4" height="4" fill="#ff65d8" />
+        <rect x="11.5" y="11.5" width="5" height="5" fill="#38ff8e" />
+      </svg>
+      Sentinel
+    </a>
+    <nav aria-label="Page sections">
+      <ul class="nav">
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#checks">Checks</a></li>
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#start">Quick start</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="https://github.com/nonsense3/Sentinel">GitHub ↗</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- HERO -->
+    <section class="hero" id="top" aria-labelledby="title">
+      <p class="label"><b>Track 2</b> — Cloud in a Box // Local serverless hack</p>
+      <div class="hero-head">
+        <div>
+          <h1 id="title">Sentinel</h1>
+          <p class="tagline">Every upload is guilty until proven clean</p>
+        </div>
+        <div class="signal" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <rect x="1" y="1" width="198" height="198" fill="#090e0b" stroke="#304c3b" stroke-width="2" />
+            <path d="M44 44 H156 V128 L128 156 H44 Z" fill="none" stroke="#38ff8e" stroke-width="3" />
+            <path d="M68 68 H132 V114 L114 132 H68 Z" fill="none" stroke="#304c3b" stroke-width="2" />
+            <rect x="88" y="88" width="24" height="24" fill="#38ff8e" />
+            <rect x="16" y="16" width="16" height="16" fill="#ff65d8" />
+            <rect x="160" y="176" width="24" height="3" fill="#65f8ff" />
+            <rect x="150" y="176" width="6" height="3" fill="#65f8ff" />
+            <rect x="184" y="20" width="3" height="40" fill="#304c3b" />
+          </svg>
+        </div>
+      </div>
+
+      <p class="lede">
+        Sentinel is a file-scanning pipeline. A new upload is held back, not shared. A scanner checks it,
+        gives it a risk score with the reasons, and then either releases it or locks it in quarantine.
+        Dangerous files also raise a security alert. It is built on S3, Lambda, SQS, DynamoDB and
+        API Gateway, defined in Terraform, and runs entirely on your laptop with LocalStack and Docker.
+      </p>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="https://github.com/nonsense3/Sentinel">View on GitHub</a>
+        <a class="btn" href="#start">Run it locally</a>
+      </div>
+
+      <ul class="facts" aria-label="Project facts">
+        <li><strong>5</strong><span>AWS services</span></li>
+        <li><strong>4</strong><span>Lambda functions</span></li>
+        <li><strong>8/8</strong><span>Demo samples pass</span></li>
+        <li><strong>27</strong><span>Unit tests</span></li>
+        <li><strong>1</strong><span>Command to start</span></li>
+      </ul>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section split" id="how" aria-labelledby="how-title">
+      <div class="intro">
+        <p class="label"><b>01</b> / How it works</p>
+        <h2 id="how-title">Upload, queue, scan, decide</h2>
+        <p>
+          Each step is its own AWS service, connected by events. The upload API never scans anything itself.
+          It stores the file and lets S3 and SQS start the rest.
+        </p>
+        <p class="meta">Diagram: <a href="architecture.svg">architecture.svg</a></p>
+      </div>
+
+      <ol class="track">
+        <li>
+          <span class="step" aria-hidden="true">01</span>
+          <div>
+            <h3>Upload</h3>
+            <p>A client sends the file as base64 to <code>POST /upload</code>. The upload Lambda stores it and records it as <code>PENDING</code>, then answers <code>202</code> with a <code>file_id</code>.</p>
+            <span class="path">API Gateway → λ upload → <code>s3://sentinel-incoming</code> + DynamoDB</span>
+          </div>
+        </li>
+        <li>
+          <span class="step" aria-hidden="true">02</span>
+          <div>
+            <h3>Queue</h3>
+            <p>S3 sends an object-created event to SQS. The queue absorbs bursts of uploads so the scanner works at a steady pace.</p>
+            <span class="path">S3 event → <code>sentinel-scan-queue</code></span>
+          </div>
+        </li>
+        <li>
+          <span class="step" aria-hidden="true">03</span>
+          <div>
+            <h3>Scan</h3>
+            <p>The scanner skips files it has already finished, hashes the bytes, and checks the hash cache. On a cache miss it runs every check and caches the result.</p>
+            <span class="path">λ scanner ↔ <code>sentinel-known-hashes</code></span>
+          </div>
+        </li>
+        <li>
+          <span class="step" aria-hidden="true">04</span>
+          <div>
+            <h3>Decide</h3>
+            <p>Clean files are released. Suspicious and malicious files are moved to quarantine, not deleted. The record becomes <code>SCANNED</code> with its score and reasons.</p>
+            <span class="path"><code>sentinel-clean</code> or <code>sentinel-quarantine</code> + <code>sentinel-verdicts</code></span>
+          </div>
+        </li>
+        <li>
+          <span class="step" aria-hidden="true">05</span>
+          <div>
+            <h3>Alert</h3>
+            <p>Malicious verdicts go to a separate queue. The alerts Lambda writes a <code>SECURITY ALERT</code> line with the file, score and reasons.</p>
+            <span class="path"><code>sentinel-alerts</code> → λ alerts → CloudWatch Logs</span>
+          </div>
+        </li>
+        <li class="fail">
+          <span class="step" aria-hidden="true">✕</span>
+          <div>
+            <h3>If a scan fails</h3>
+            <p>SQS delivers the message again. After 3 failed attempts it moves to the dead-letter queue, so one bad file can't block the others.</p>
+            <span class="path"><code>sentinel-scan-queue</code> → <code>sentinel-scan-dlq</code></span>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- CHECKS -->
+    <section class="section" id="checks" aria-labelledby="checks-title">
+      <div class="split">
+        <div class="intro">
+          <p class="label"><b>02</b> / Scanner checks</p>
+          <h2 id="checks-title">Six checks, one score</h2>
+          <p>
+            Every check adds points. The total is capped at 100. Each check is a plain Python function,
+            so all of them are unit tested without Docker.
+          </p>
+        </div>
+        <ul class="matrix">
+          <li>
+            <span class="points">Reuses stored score</span>
+            <h3>Hash lookup</h3>
+            <p>Identical content gets the earlier verdict straight from DynamoDB. The EICAR test file is seeded as known-bad.</p>
+          </li>
+          <li>
+            <span class="points">70 / 25 points</span>
+            <h3>Magic bytes</h3>
+            <p>Reads the real file type from its first bytes. An executable dressed as a PDF scores 70; other mismatches score 25.</p>
+          </li>
+          <li>
+            <span class="points">40 / 40 / 20 points</span>
+            <h3>Filename tricks</h3>
+            <p>Double extensions like <code>resume.pdf.exe</code>, the right-to-left override character, and dangerous extensions.</p>
+          </li>
+          <li>
+            <span class="points">Up to 100 points</span>
+            <h3>Content patterns</h3>
+            <p>The EICAR signature, PDF JavaScript, open and launch actions, and encoded PowerShell commands.</p>
+          </li>
+          <li>
+            <span class="points">20 points</span>
+            <h3>Entropy</h3>
+            <p>Random-looking data (7.5 bits per byte or more) suggests a packed or encrypted payload.</p>
+          </li>
+          <li>
+            <span class="points">15 to 60 points</span>
+            <h3>ZIP metadata</h3>
+            <p>Zip bombs, VBA macros, embedded executables, encrypted or nested archives. Archives are never extracted.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- VERDICTS -->
+    <section class="section" id="verdicts" aria-labelledby="verdicts-title">
+      <p class="label"><b>03</b> / Verdicts</p>
+      <h2 id="verdicts-title">Three outcomes</h2>
+      <p>Every verdict lists the reasons that produced it, so a flagged file can always be explained.</p>
+
+      <div class="records">
+        <article class="record clean">
+          <div class="who">
+            <span class="badge">Clean</span>
+            <h3>Released</h3>
+          </div>
+          <dl>
+            <dt>Score</dt><dd>0 to 29</dd>
+            <dt>Goes to</dt><dd><code>sentinel-clean</code></dd>
+          </dl>
+          <div class="what">
+            <ul>
+              <li>No alert is raised.</li>
+              <li>From the demo: <code>clean.pdf</code> scored 0, “no threats detected”.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="record suspicious">
+          <div class="who">
+            <span class="badge">Suspicious</span>
+            <h3>Quarantined</h3>
+          </div>
+          <dl>
+            <dt>Score</dt><dd>30 to 79</dd>
+            <dt>Goes to</dt><dd><code>sentinel-quarantine</code></dd>
+          </dl>
+          <div class="what">
+            <ul>
+              <li>Kept for review, never deleted.</li>
+              <li>From the demo: <code>report.docx</code> 50 (VBA macro), <code>archive.zip</code> 60 (expands 1029×), <code>resume.pdf.exe</code> 40.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="record malicious">
+          <div class="who">
+            <span class="badge">Malicious</span>
+            <h3>Quarantined + alert</h3>
+          </div>
+          <dl>
+            <dt>Score</dt><dd>80 to 100</dd>
+            <dt>Goes to</dt><dd><code>sentinel-quarantine</code></dd>
+          </dl>
+          <div class="what">
+            <ul>
+              <li>A <code>SECURITY ALERT</code> is logged through the alerts queue.</li>
+              <li>From the demo: <code>eicar.txt</code>, <code>invoice.pdf.exe</code> and <code>evil.pdf</code>, all 100.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- RELIABILITY -->
+    <section class="section" id="reliability" aria-labelledby="rel-title">
+      <div class="split">
+        <div class="intro">
+          <p class="label"><b>04</b> / Reliability</p>
+          <h2 id="rel-title">Built to fail safely</h2>
+          <p>The pipeline expects things to go wrong and keeps every file accounted for.</p>
+        </div>
+        <ul class="matrix">
+          <li>
+            <span class="points">SQS</span>
+            <h3>Queue buffering</h3>
+            <p>Upload spikes wait in the queue instead of overloading the scanner.</p>
+          </li>
+          <li>
+            <span class="points">3 attempts</span>
+            <h3>Retries + DLQ</h3>
+            <p>A failing scan is retried, then parked in <code>sentinel-scan-dlq</code>. Try <code>crash-me.txt</code>.</p>
+          </li>
+          <li>
+            <span class="points">cache_hit</span>
+            <h3>Idempotency</h3>
+            <p>Finished files are skipped, and repeated content reuses its cached verdict.</p>
+          </li>
+          <li>
+            <span class="points">Audit trail</span>
+            <h3>Quarantine, not delete</h3>
+            <p>Flagged files are moved aside and kept, so nothing is lost.</p>
+          </li>
+          <li>
+            <span class="points">Metadata only</span>
+            <h3>Safe inspection</h3>
+            <p>ZIP files are judged from their headers. Nothing is unpacked.</p>
+          </li>
+          <li>
+            <span class="points">Own queue</span>
+            <h3>Separate alerting</h3>
+            <p>Alerts run on their own queue and Lambda, so a slow alert never delays scanning.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SEE IT RUN -->
+    <section class="section" id="demo" aria-labelledby="demo-title">
+      <p class="label"><b>05</b> / See it run</p>
+      <h2 id="demo-title">The scan console</h2>
+      <p>
+        A small local dashboard uploads files through the real API and lists every verdict from DynamoDB.
+        You can scan several files at once and clear the records to start over.
+      </p>
+
+      <div class="editorial">
+        <figure class="lead">
+          <div class="frame">
+            <img src="screenshots/dashboard.png" width="1280" height="1430"
+                 alt="Sentinel dashboard listing scanned files with clean, suspicious and malicious verdicts, risk scores and reasons" />
+          </div>
+          <figcaption class="meta">
+            Dashboard after <code>make demo</code>, read live from DynamoDB.
+            <a href="screenshots/dashboard.png">Open full screenshot</a>
+          </figcaption>
+        </figure>
+
+        <ul class="entries">
+          <li class="entry">
+            <div class="thumb">
+              <img src="screenshots/dashboard-mobile.png" width="390" height="2680" loading="lazy"
+                   alt="The same dashboard on a narrow phone screen" />
+            </div>
+            <div>
+              <h3>Works on small screens</h3>
+              <p>At 390px the records stack into single columns and keep their reasons.</p>
+              <a class="meta" href="screenshots/dashboard-mobile.png">Mobile screenshot</a>
+            </div>
+          </li>
+          <li class="entry">
+            <div class="thumb wide">
+              <img src="architecture.svg" width="1320" height="800" loading="lazy"
+                   alt="Architecture diagram of the Sentinel pipeline" />
+            </div>
+            <div>
+              <h3>Architecture</h3>
+              <p>Client, API Gateway, four Lambdas, three buckets, three queues and two tables.</p>
+              <a class="meta" href="architecture.svg">Open diagram</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PROOF -->
+    <section class="section split" id="results" aria-labelledby="results-title">
+      <div class="intro">
+        <p class="label"><b>06</b> / Demo results</p>
+        <h2 id="results-title">8 of 8 pass</h2>
+        <p>Output of <code>scripts/demo.py</code> against the live LocalStack stack. All sample files are generated and harmless.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">Demo sample files with expected and actual verdicts</caption>
+          <thead>
+            <tr><th scope="col">File</th><th scope="col">Expected</th><th scope="col">Actual</th><th scope="col">Result</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>clean.pdf</td><td>clean</td><td class="v-clean">clean (0)</td><td class="pass">PASS</td></tr>
+            <tr><td>eicar.txt</td><td>malicious</td><td class="v-malicious">malicious (100)</td><td class="pass">PASS</td></tr>
+            <tr><td>invoice.pdf.exe</td><td>malicious</td><td class="v-malicious">malicious (100)</td><td class="pass">PASS</td></tr>
+            <tr><td>report.docx</td><td>suspicious</td><td class="v-suspicious">suspicious (50)</td><td class="pass">PASS</td></tr>
+            <tr><td>resume.pdf.exe</td><td>suspicious</td><td class="v-suspicious">suspicious (40)</td><td class="pass">PASS</td></tr>
+            <tr><td>evil.pdf</td><td>malicious</td><td class="v-malicious">malicious (100)</td><td class="pass">PASS</td></tr>
+            <tr><td>archive.zip</td><td>suspicious</td><td class="v-suspicious">suspicious (60)</td><td class="pass">PASS</td></tr>
+            <tr><td>packed.scr</td><td>suspicious</td><td class="v-suspicious">suspicious (40)</td><td class="pass">PASS</td></tr>
+            <tr><td>crash-me.txt</td><td>dead-letter</td><td class="muted">fails on purpose</td><td class="muted">DLQ</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- STACK -->
+    <section class="section" id="stack" aria-labelledby="stack-title">
+      <p class="label"><b>07</b> / Built with</p>
+      <h2 id="stack-title">AWS, on your laptop</h2>
+      <p>LocalStack runs the AWS services inside one Docker container. Terraform creates every resource.</p>
+      <div class="stack-wrap">
+      <ul class="stack">
+        <li><img src="icons/aws-logo.svg" alt="" width="40" height="40" /><b>AWS</b><span>Cloud platform</span></li>
+        <li><img src="icons/aws-cloud.svg" alt="" width="40" height="40" /><b>AWS Cloud</b><span>Emulated locally</span></li>
+        <li><img src="icons/s3.svg" alt="" width="40" height="40" /><b>Amazon S3</b><span>3 buckets</span></li>
+        <li><img src="icons/lambda.svg" alt="" width="40" height="40" /><b>AWS Lambda</b><span>4 functions</span></li>
+        <li><img src="icons/dynamodb.svg" alt="" width="40" height="40" /><b>DynamoDB</b><span>2 tables</span></li>
+        <li><img src="icons/api-gateway.svg" alt="" width="40" height="40" /><b>API Gateway</b><span>REST API</span></li>
+        <li><img src="icons/sqs.svg" alt="" width="40" height="40" /><b>Amazon SQS</b><span>3 queues + DLQ</span></li>
+        <li><img src="icons/localstack.png" alt="" width="40" height="40" /><b>LocalStack</b><span>Local AWS</span></li>
+        <li><img src="icons/terraform.svg" alt="" width="40" height="40" /><b>Terraform</b><span>IaC</span></li>
+        <li><img src="icons/docker.svg" alt="" width="40" height="40" /><b>Docker</b><span>Compose</span></li>
+        <li><img src="icons/python.svg" alt="" width="40" height="40" /><b>Python 3.11</b><span>Lambda runtime</span></li>
+      </ul>
+      </div>
+      <p class="credit">
+        AWS icons are the official AWS Architecture Icons, © Amazon Web Services, Inc., used unmodified under the
+        <a href="https://aws.amazon.com/architecture/icons/">AWS icon terms</a>. Terraform, Docker and Python icons from
+        <a href="https://devicon.dev">Devicon</a>. The LocalStack logo belongs to LocalStack. Sentinel is not affiliated with AWS.
+      </p>
+    </section>
+
+    <!-- QUICK START -->
+    <section class="section split" id="start" aria-labelledby="start-title">
+      <div class="intro">
+        <p class="label"><b>08</b> / Quick start</p>
+        <h2 id="start-title">Run it in one command</h2>
+        <p>You need Docker Desktop, Terraform 1.5 or newer, and Python 3.10 or newer. No AWS account, no credit card, no LocalStack token.</p>
+        <p class="meta">Then open <code>http://localhost:8080</code> for the dashboard.</p>
+      </div>
+      <div>
+        <div class="code-block">
+          <div class="code-head">
+            <span class="meta">Windows · PowerShell</span>
+            <button class="copy" type="button" data-copy="win">Copy</button>
+          </div>
+<pre id="win"><code>git clone https://github.com/nonsense3/Sentinel.git
+cd Sentinel
+Copy-Item .env.example .env
+pip install -r requirements-dev.txt
+.\make.ps1 up
+.\make.ps1 demo
+.\make.ps1 dashboard</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-head">
+            <span class="meta">macOS · Linux</span>
+            <button class="copy" type="button" data-copy="nix">Copy</button>
+          </div>
+<pre id="nix"><code>git clone https://github.com/nonsense3/Sentinel.git
+cd Sentinel
+cp .env.example .env
+pip install -r requirements-dev.txt
+make up
+make demo
+make dashboard</code></pre>
+        </div>
+        <p class="muted" id="copy-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section split" id="faq" aria-labelledby="faq-title">
+      <div class="intro">
+        <p class="label"><b>09</b> / Questions</p>
+        <h2 id="faq-title">FAQ</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Is there a live version I can use online?</summary>
+          <div class="answer">
+            <p>No. Track 2 asks for a backend that runs locally, so Sentinel runs on your own machine through LocalStack. This page describes the project; the scanning happens after you clone and start it.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Do I need an AWS account or a credit card?</summary>
+          <div class="answer">
+            <p>No. LocalStack ignores credential values. The <code>.env.example</code> file uses <code>test</code> / <code>test</code>, and nothing reaches real AWS.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Do I need a LocalStack auth token?</summary>
+          <div class="answer">
+            <p>No. The pinned community image (<code>localstack/localstack:3.8</code>) runs every service Sentinel uses. A Pro token is only needed if you want data to survive container restarts.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Is this a real antivirus?</summary>
+          <div class="answer">
+            <p>No. It uses heuristic checks and the standard EICAR test string. It never uses real malware, and it is a demonstration rather than production security.</p>
+          </div>
+        </details>
+        <details>
+          <summary>My files disappeared after restarting Docker. Why?</summary>
+          <div class="answer">
+            <p>The community image doesn't keep data when the container restarts. Run <code>make deploy</code> (or <code>.\make.ps1 deploy</code>) to recreate everything, then restart the dashboard.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="section closing" aria-label="Closing">
+      <p class="statement">Nothing is shared until it passes.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="https://github.com/nonsense3/Sentinel">Get the code</a>
+        <a class="btn" href="https://github.com/nonsense3/Sentinel#readme">Read the README</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="directory">
+    <div class="dir-grid">
+      <nav aria-labelledby="dir-project">
+        <h2 id="dir-project">Project</h2>
+        <ul>
+          <li><a href="https://github.com/nonsense3/Sentinel">GitHub repository</a></li>
+          <li><a href="https://github.com/nonsense3/Sentinel#readme">README</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="dir-page">
+        <h2 id="dir-page">On this page</h2>
+        <ul>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#checks">Scanner checks</a></li>
+          <li><a href="#demo">See it run</a></li>
+          <li><a href="#start">Quick start</a></li>
+        </ul>
+      </nav>
+      <div>
+        <h2>Stack</h2>
+        <ul>
+          <li>S3 · Lambda · SQS</li>
+          <li>DynamoDB · API Gateway</li>
+          <li>LocalStack · Terraform</li>
+          <li>Docker · Python</li>
+        </ul>
+      </div>
+    </div>
+    <div class="dir-base">
+      <span>Sentinel // Track 2 — Cloud in a Box</span>
+      <span>Not affiliated with AWS</span>
+    </div>
+  </footer>
+
+</div>
+</div>
+
+<script>
+  // Copy buttons for the quick-start commands.
+  (function () {
+    var status = document.getElementById("copy-status");
+    document.querySelectorAll("[data-copy]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var text = document.getElementById(btn.getAttribute("data-copy")).innerText;
+        var done = function (ok) {
+          btn.textContent = ok ? "Copied" : "Copy";
+          status.textContent = ok ? "Commands copied to the clipboard." : "Copy failed. Select the commands and copy them by hand.";
+          setTimeout(function () { btn.textContent = "Copy"; }, 2000);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+        } else {
+          done(false);
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

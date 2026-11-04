@@ -8,6 +8,10 @@
 </p>
 
 <p align="center">
+  <a href="https://nonsense3.github.io/Sentinel/"><b>Project home page →</b></a>
+</p>
+
+<p align="center">
   <img alt="Track 2" src="https://img.shields.io/badge/Track%202-Cloud%20in%20a%20Box-38ff8e?style=for-the-badge&labelColor=020303" />
   <img alt="LocalStack" src="https://img.shields.io/badge/LocalStack-3.8-38ff8e?style=for-the-badge&labelColor=020303" />
   <img alt="Offline" src="https://img.shields.io/badge/100%25-offline-38ff8e?style=for-the-badge&labelColor=020303" />
@@ -452,10 +456,8 @@ Sentinel/
 ├── dashboard/                Local web console (server.py + HTML/CSS/JS)
 ├── scripts/                  make_samples.py, demo.py, helpers
 ├── tests/                    Unit tests
-└── docs/                     PLAN.md, architecture.svg, logo, screenshots
+└── docs/                     Home page (index.html), architecture.svg, logo, icons, screenshots
 ```
-
-The full plan, milestones, and demo script are in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## Troubleshooting
 
