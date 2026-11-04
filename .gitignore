@@ -11,6 +11,10 @@ terraform/.terraform.lock.hcl
 *.tfstate.*
 crash.log
 
+# Cloudflare Wrangler local state
+.wrangler/
+node_modules/
+
 # Lambda build artifacts
 *.zip
 build/

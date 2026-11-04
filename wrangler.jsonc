@@ -1,0 +1,10 @@
+// Cloudflare Workers config for the Sentinel home page.
+// Serves the static site in ./docs. There is no Worker script; Cloudflare
+// serves the files directly. "name" must match the Worker name in the dashboard.
+{
+  "name": "sentinel",
+  "compatibility_date": "2026-11-04",
+  "assets": {
+    "directory": "./docs"
+  }
+}
