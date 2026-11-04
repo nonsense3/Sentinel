@@ -8,15 +8,9 @@
 </p>
 
 <p align="center">
-  <a href="https://nonsense3.github.io/Sentinel/"><b>Project home page →</b></a>
-</p>
-
-<p align="center">
-  <img alt="Track 2" src="https://img.shields.io/badge/Track%202-Cloud%20in%20a%20Box-38ff8e?style=for-the-badge&labelColor=020303" />
   <img alt="LocalStack" src="https://img.shields.io/badge/LocalStack-3.8-38ff8e?style=for-the-badge&labelColor=020303" />
   <img alt="Offline" src="https://img.shields.io/badge/100%25-offline-38ff8e?style=for-the-badge&labelColor=020303" />
-  <img alt="Tests" src="https://img.shields.io/badge/unit%20tests-27%20passing-38ff8e?style=for-the-badge&labelColor=020303" />
-</p>
+ </p>
 
 <p align="center">
   <img src="docs/icons/aws-logo.svg" alt="AWS" width="72" height="72" />
